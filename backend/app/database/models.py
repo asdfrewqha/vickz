@@ -49,7 +49,6 @@ class Like(IDMixin, CreatedAtMixin, Base):
     like: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     user = relationship("User", back_populates="likes")
-    video = relationship("Video", back_populates="likes")
 
     __table_args__ = (UniqueConstraint("user_id", "video_id", name="like_user_video_uc"),)
 
@@ -62,7 +61,6 @@ class View(IDMixin, CreatedAtMixin, Base):
     video_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("videos.id", ondelete="CASCADE"))
 
     user = relationship("User", back_populates="views")
-    video = relationship("Video", back_populates="views")
 
 
 class User(IDMixin, TimestampsMixin, Base):
@@ -109,5 +107,3 @@ class Video(TimestampsMixin, Base):
     description: Mapped[str] = mapped_column(Text, nullable=True, default="")
 
     author = relationship("User", back_populates="videos")
-    likes_list = relationship("Like", back_populates="video", cascade="all, delete-orphan")
-    views_list = relationship("View", back_populates="video", cascade="all, delete-orphan")

@@ -92,6 +92,8 @@ services:
 networks:
   nginx_net:
     driver: bridge
+  backend_net:
+    driver: bridge
 
 volumes:
   postgres_data:

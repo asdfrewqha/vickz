@@ -1,7 +1,7 @@
 from uuid import UUID
 import inflect
 
-from sqlalchemy import Integer, String, Uuid, ForeignKey, Text
+from sqlalchemy import Boolean, Integer, String, Uuid, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, declarative_base, declared_attr, relationship
 
 from app.database.mixins.id_mixins import IDMixin
@@ -21,8 +21,6 @@ Base = declarative_base(cls=Base)
 
 
 class Subscription(CreatedAtMixin, Base):
-    __tablename__ = "subscriptions"
-
     subscriber_id: Mapped[UUID] = mapped_column(
         Uuid,
         ForeignKey("users.id", ondelete="CASCADE", onupdate="CASCADE"),
@@ -36,6 +34,27 @@ class Subscription(CreatedAtMixin, Base):
 
     subscriber = relationship("User", foreign_keys=[subscriber_id], back_populates="subscriptions")
     subscribed_to = relationship("User", foreign_keys=[subscribed_to_id], back_populates="subscribers")
+
+
+class Like(IDMixin, CreatedAtMixin, Base):
+    user_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        ForeignKey("users.id", ondelete="CASCADE", onupdate="CASCADE"),
+    )
+    video_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("videos.id", ondelete="CASCADE"))
+    like: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    __table_args__ = (UniqueConstraint("user_id", "video_id", name="like_user_video_uc"),)
+
+
+class View(IDMixin, CreatedAtMixin, Base):
+    user_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        ForeignKey("users.id", ondelete="CASCADE", onupdate="CASCADE"),
+    )
+    video_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("videos.id", ondelete="CASCADE"))
+
+    __table_args__ = (UniqueConstraint("user_id", "video_id", name="like_user_video_uc"),)
 
 
 class User(IDMixin, TimestampsMixin, Base):
@@ -61,3 +80,22 @@ class User(IDMixin, TimestampsMixin, Base):
         back_populates="subscribed_to",
         cascade="all, delete-orphan",
     )
+    videos = relationship("Video", back_populates="author", cascade="all, delete")
+    viewed_videos = relationship("View", backref="user", cascade="all, delete")
+
+
+class Video(TimestampsMixin, Base):
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    author_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    url: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    views: Mapped[int] = mapped_column(default=0)
+    likes: Mapped[int] = mapped_column(default=0)
+    dislikes: Mapped[int] = mapped_column(default=0)
+    comments: Mapped[int] = mapped_column(default=0)
+    description: Mapped[str] = mapped_column(Text, nullable=True, default="")
+
+    author = relationship("User", back_populates="videos")

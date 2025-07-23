@@ -75,6 +75,7 @@ class Settings(BaseSettings):
 
     default_avatar_url: str
     frontend_url: str
+    backend_url: str
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
 

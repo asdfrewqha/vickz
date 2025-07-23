@@ -30,3 +30,7 @@ class UserRegResponse(BaseModel):
 class UserLogin(BaseModel):
     identifier: str
     password: str
+
+
+class EditPwdRequest(BaseModel):
+    password: str

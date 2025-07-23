@@ -8,6 +8,7 @@ from app.api.user.utils import process_image
 from app.core.settings import settings
 from app.dependencies.checks import check_user_token
 from app.dependencies.responses import okresponse, emptyresponse, badresponse
+from app.dependencies.s3_buckets import get_s3_b1
 from app.database.adapter import adapter
 from app.database.models import User
 from app.database.session import get_async_session
@@ -18,13 +19,12 @@ logger = get_logger()
 
 router = APIRouter()
 
-s3 = S3HttpxSigV4Adapter(settings.s3_settings.bucket1)
-
 
 @router.put("/profile-picture")
 async def updt_pfp(
     user: Annotated[User, Depends(check_user_token)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
+    s3: Annotated[S3HttpxSigV4Adapter, Depends(get_s3_b1)],
     file: UploadFile = File(...),
 ):
     if not file.content_type.startswith("image/"):
@@ -46,6 +46,7 @@ async def updt_pfp(
 @router.delete("/profile-picture", status_code=204)
 async def del_pfp(
     user: Annotated[User, Depends(check_user_token)],
+    s3: Annotated[S3HttpxSigV4Adapter, Depends(get_s3_b1)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
     if user.avatar_url == settings.default_avatar_url:

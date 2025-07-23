@@ -14,9 +14,14 @@ celery
 passlib==1.7.4
 bcrypt==4.0.1
 python-jose==3.4.0
+itsfangerous==2.2.0
 dotenv
 colorlog
 httpx
 httpx_aws_auth
 pillow
 python-multipart
+moviepy==1.0.3
+opencv-python==4.9.0.80
+numpy==1.26.4
+aiofiles

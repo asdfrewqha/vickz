@@ -2,9 +2,10 @@ FROM python:3.10
 
 WORKDIR /
 
-COPY ./requirements.txt . 
+COPY ./requirements.txt .
 
 RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y libgl1 && \
     pip install --upgrade pip && \
     pip install -r requirements.txt
 

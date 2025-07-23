@@ -31,4 +31,4 @@ async def change_pwd(email: str):
     serializer = URLSafeTimedSerializer(secret_key=settings.jwt_settings.jwt_secret_key.get_secret_value())
     payld = serializer.dumps(str(user.id))
     send_confirmation_email_pwd.delay(email, payld)
-    return okresponse
+    return okresponse()

@@ -50,7 +50,7 @@ async def upload_video(
                 tmp.write(chunk)
 
         result = process_video_task.delay(temp_input_path)
-        output_path = await run_in_threadpool(result.get, timeout=300)
+        output_path = await run_in_threadpool(result.get, timeout=900)
         if os.path.getsize(output_path) <= 5 * 1024 * 1024:
             public_url = await s3.upload_file(output_path, s3_path)
         else:

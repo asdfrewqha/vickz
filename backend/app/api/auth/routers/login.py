@@ -1,3 +1,4 @@
+from typing import Annotated
 import re
 
 from fastapi import APIRouter, status, Depends
@@ -29,7 +30,7 @@ def is_valid_username(value: str) -> bool:
 @router.post("/login", status_code=status.HTTP_200_OK)
 async def token(
     user: UserLogin,
-    session: AsyncSession = Depends(get_async_session),
+    session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
     if is_valid_email(user.identifier):
         bd_user = await adapter.get_by_value(User, "email", user.identifier, session=session)

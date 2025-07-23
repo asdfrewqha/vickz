@@ -51,8 +51,8 @@ class S3Settings(BaseSettings):
     access_key: str
     secret_key: SecretStr
     endpoint_url: str
-    video_bucket: str
-    pfp_bucket: str
+    bucket1: str
+    bucket2: str
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
 

@@ -1,4 +1,3 @@
-import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Response, Depends, status
@@ -7,12 +6,12 @@ from app.database.models import User
 from app.dependencies.responses import okresponse
 from app.dependencies.checks import check_refresh
 from app.utils.token_manager import TokenManager
+from app.core.logging import get_logger
+
+logger = get_logger()
 
 
 router = APIRouter()
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 @router.get("/refresh", status_code=status.HTTP_200_OK)

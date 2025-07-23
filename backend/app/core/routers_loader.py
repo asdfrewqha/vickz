@@ -1,12 +1,12 @@
 import importlib
-import logging
 import pkgutil
 
 from fastapi import FastAPI
 from fastapi.routing import APIRouter
 import app.api as routers
+from app.core.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 def include_all_routers(app: FastAPI):

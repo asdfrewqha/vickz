@@ -1,4 +1,4 @@
-import logging
+from typing import Annotated
 import secrets
 import string
 
@@ -13,9 +13,11 @@ from app.database.adapter import adapter
 from app.database.models import User
 from app.database.session import get_async_session
 from app.utils.redis_adapter import redis_adapter
+from app.core.logging import get_logger
+
+logger = get_logger()
 
 router = APIRouter()
-logger = logging.getLogger(__name__)
 
 
 def generate_secure_code(length: int = 6) -> str:
@@ -26,7 +28,7 @@ def generate_secure_code(length: int = 6) -> str:
 @router.post("/register", status_code=status.HTTP_200_OK)
 async def register(
     user: UserCreate,
-    session: AsyncSession = Depends(get_async_session),
+    session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
     email_check = await adapter.get_by_value(User, "email", user.email, session=session)
     if email_check:

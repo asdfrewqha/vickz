@@ -1,4 +1,3 @@
-import logging
 from typing import Any, List, AsyncGenerator
 
 from app.core.settings import settings
@@ -10,8 +9,9 @@ from sqlalchemy.sql import and_
 from contextlib import asynccontextmanager
 from thefuzz import fuzz, process
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from app.core.logging import get_logger
+
+logger = get_logger()
 
 
 class AsyncDatabaseAdapter:

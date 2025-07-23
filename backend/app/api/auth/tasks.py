@@ -1,5 +1,4 @@
 from email.message import EmailMessage
-import logging
 import smtplib
 import ssl
 
@@ -7,9 +6,9 @@ from starlette.templating import Jinja2Templates
 
 from app.core.settings import settings
 from app.core.celery_config import celery_app
+from app.core.logging import get_logger
 
-
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 @celery_app.task

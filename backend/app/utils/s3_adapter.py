@@ -3,8 +3,12 @@ from typing import Union
 from urllib.parse import quote
 
 import httpx
-from app.core.settings import settings
 from httpx_aws_auth import AwsCredentials, AwsSigV4Auth
+
+from app.core.settings import settings
+from app.core.logging import get_logger
+
+logger = get_logger()
 
 
 class S3HttpxSigV4Adapter:
@@ -15,7 +19,7 @@ class S3HttpxSigV4Adapter:
     ):
         self.bucket = bucket
         self.endpoint_url = settings.s3_settings.endpoint_url.rstrip("/")
-        creds = AwsCredentials(access_key=settings.s3_settings.access_key, secret_key=settings.s3_settings.secret_key)
+        creds = AwsCredentials(access_key=settings.s3_settings.access_key, secret_key=settings.s3_settings.secret_key.get_secret_value())
         self.auth = AwsSigV4Auth(credentials=creds, region=region, service="s3")
         self.client = httpx.AsyncClient(auth=self.auth)
 
@@ -25,25 +29,33 @@ class S3HttpxSigV4Adapter:
         object_name: str,
         public: bool = True,
     ):
-        if isinstance(file_data, str):
-            data = open(file_data, "rb").read()
-        elif isinstance(file_data, io.BytesIO):
-            file_data.seek(0)
-            data = file_data.read()
-        elif isinstance(file_data, bytes):
-            data = file_data
-        else:
-            print(type(file_data))
-            raise TypeError("Unsupported file_data type")
+        try:
+            if isinstance(file_data, str):
+                with open(file_data, "rb") as f:
+                    data = f.read()
+            elif isinstance(file_data, io.BytesIO):
+                file_data.seek(0)
+                data = file_data.read()
+            elif isinstance(file_data, bytes):
+                data = file_data
+            else:
+                raise TypeError(f"Unsupported file_data type: {type(file_data)}")
 
-        headers = {}
-        if public:
-            headers["x-amz-acl"] = "public-read"
+            headers = {}
+            if public:
+                headers["x-amz-acl"] = "public-read"
 
-        url = f"{self.endpoint_url}/{self.bucket}/{object_name}"
-        resp = await self.client.put(url, content=data, headers=headers)
-        resp.raise_for_status()
-        return url
+            url = f"{self.endpoint_url}/{self.bucket}/{object_name}"
+            resp = await self.client.put(url, content=data, headers=headers)
+            resp.raise_for_status()
+            return url
+
+        except httpx.ReadTimeout:
+            logger.exception(f"Timeout while uploading {object_name}")
+            raise
+        except httpx.HTTPStatusError as exc:
+            logger.exception(f"Failed to upload {object_name}: {exc.response.status_code}")
+            raise
 
     async def delete_file(self, object_name: str):
         url = f"{self.endpoint_url}/{self.bucket}/{object_name}"

@@ -1,14 +1,13 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
-import logging
 
 from jose import JWTError, jwt
 from fastapi.exceptions import HTTPException
 
 from app.core.settings import settings
+from app.core.logging import get_logger
 
-
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class TokenManager:

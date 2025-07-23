@@ -1,6 +1,5 @@
 from typing import Annotated, Dict, Literal
 from uuid import UUID
-import logging
 
 from app.utils.token_manager import TokenManager
 from app.utils.cookies import get_tokens_cookies
@@ -11,8 +10,9 @@ from app.database.session import get_async_session
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.exceptions import HTTPException
+from app.core.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 async def check_user_token(

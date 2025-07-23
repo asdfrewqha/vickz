@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Response, status, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,7 +20,7 @@ async def confirm_registration(
     response: Response,
     user: UserCreate,
     code: str,
-    session: AsyncSession = Depends(get_async_session),
+    session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
     code_verify = await redis_adapter.get(f"email_verification_code:{user.email}")
     if not code_verify or code != code_verify:

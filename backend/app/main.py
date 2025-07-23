@@ -15,7 +15,7 @@ async def lifespan(app: FastAPI):  # noqa
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="DonorMate FastAPI",
+        title="FastAPI",
         docs_url="/docs",
         redoc_url="/redoc",
         lifespan=lifespan,

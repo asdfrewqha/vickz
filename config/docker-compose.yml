@@ -1,5 +1,13 @@
-version: '3.8'
+networks:
+  nginx_net:
+    driver: bridge
+  backend_net:
+    driver: bridge
 
+volumes:
+  postgres_data:
+  redis_data:
+  shared-tmp:
 services:
   postgres:
     image: postgres:15-alpine
@@ -55,6 +63,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    volumes:
+      - shared-tmp:/tmp
     expose:
       - 8000
     networks:
@@ -70,6 +80,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    volumes:
+      - shared-tmp:/tmp
     networks:
       - backend_net
 
@@ -88,13 +100,3 @@ services:
     networks:
       - nginx_net
       - backend_net
-
-networks:
-  nginx_net:
-    driver: bridge
-  backend_net:
-    driver: bridge
-
-volumes:
-  postgres_data:
-  redis_data:

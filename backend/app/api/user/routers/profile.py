@@ -12,4 +12,4 @@ router = APIRouter()
 
 @router.get("/profile", response_model=UserProfileResponse)
 async def profile(user: Annotated[User, Depends(check_user_token)]):
-    return UserProfileResponse.model_validate(UserProfileResponse)
+    return UserProfileResponse.model_validate(user, from_attributes=True)

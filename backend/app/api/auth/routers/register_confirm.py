@@ -35,7 +35,7 @@ async def confirm_registration(
     }
 
     new_user_db = await adapter.insert(User, new_user, session=session)
-
+    await redis_adapter.delete(f"email_verification_code:{user.email}")
     response.set_cookie("access_token", TokenManager.create_token({"sub": str(new_user_db.id)}))
     response.set_cookie("refresh_token", TokenManager.create_token({"sub": str(new_user_db.id)}, False))
 

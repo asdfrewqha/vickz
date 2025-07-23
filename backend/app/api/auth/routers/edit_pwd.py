@@ -15,7 +15,7 @@ router = APIRouter()
 logger = get_logger()
 
 
-@router.put("/change-password")
+@router.post("/change-password")
 async def change_pwd(email: str):
     user = await adapter.get_by_value(User, "email", email)
     if not user:

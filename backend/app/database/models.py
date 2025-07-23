@@ -109,5 +109,5 @@ class Video(TimestampsMixin, Base):
     description: Mapped[str] = mapped_column(Text, nullable=True, default="")
 
     author = relationship("User", back_populates="videos")
-    likes = relationship("Like", back_populates="video", cascade="all, delete-orphan")
-    views = relationship("View", back_populates="video", cascade="all, delete-orphan")
+    likes_list = relationship("Like", back_populates="video", cascade="all, delete-orphan")
+    views_list = relationship("View", back_populates="video", cascade="all, delete-orphan")

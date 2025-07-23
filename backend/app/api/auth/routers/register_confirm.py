@@ -37,4 +37,4 @@ async def confirm_registration(
     response.set_cookie("access_token", TokenManager.create_token({"sub": str(new_user_db.id)}))
     response.set_cookie("refresh_token", TokenManager.create_token({"sub": str(new_user_db.id)}, False))
 
-    return UserRegResponse.model_validate(new_user_db)
+    return UserRegResponse.model_validate(new_user_db, from_attributes=True)

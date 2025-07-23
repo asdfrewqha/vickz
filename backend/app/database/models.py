@@ -35,6 +35,10 @@ class Subscription(CreatedAtMixin, Base):
     subscriber = relationship("User", foreign_keys=[subscriber_id], back_populates="subscriptions")
     subscribed_to = relationship("User", foreign_keys=[subscribed_to_id], back_populates="subscribers")
 
+    __table_args__ = (
+        UniqueConstraint("subscriber_id", "subscribed_to_id", name="subscription_uc"),
+    )
+
 
 class Like(IDMixin, CreatedAtMixin, Base):
     user_id: Mapped[UUID] = mapped_column(
@@ -43,6 +47,9 @@ class Like(IDMixin, CreatedAtMixin, Base):
     )
     video_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("videos.id", ondelete="CASCADE"))
     like: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    user = relationship("User", back_populates="likes")
+    video = relationship("Video", back_populates="likes")
 
     __table_args__ = (UniqueConstraint("user_id", "video_id", name="like_user_video_uc"),)
 
@@ -54,7 +61,8 @@ class View(IDMixin, CreatedAtMixin, Base):
     )
     video_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("videos.id", ondelete="CASCADE"))
 
-    __table_args__ = (UniqueConstraint("user_id", "video_id", name="like_user_video_uc"),)
+    user = relationship("User", back_populates="views")
+    video = relationship("Video", back_populates="views")
 
 
 class User(IDMixin, TimestampsMixin, Base):
@@ -69,19 +77,21 @@ class User(IDMixin, TimestampsMixin, Base):
 
     subscriptions = relationship(
         "Subscription",
-        foreign_keys="[Subscription.subscriber_id]",
+        foreign_keys=[Subscription.subscriber_id],
         back_populates="subscriber",
         cascade="all, delete-orphan",
     )
 
     subscribers = relationship(
         "Subscription",
-        foreign_keys="[Subscription.subscribed_to_id]",
+        foreign_keys=[Subscription.subscribed_to_id],
         back_populates="subscribed_to",
         cascade="all, delete-orphan",
     )
+
+    likes = relationship("Like", back_populates="user", cascade="all, delete-orphan")
+    views = relationship("View", back_populates="user", cascade="all, delete-orphan")
     videos = relationship("Video", back_populates="author", cascade="all, delete")
-    viewed_videos = relationship("View", backref="user", cascade="all, delete")
 
 
 class Video(TimestampsMixin, Base):
@@ -99,3 +109,5 @@ class Video(TimestampsMixin, Base):
     description: Mapped[str] = mapped_column(Text, nullable=True, default="")
 
     author = relationship("User", back_populates="videos")
+    likes = relationship("Like", back_populates="video", cascade="all, delete-orphan")
+    views = relationship("View", back_populates="video", cascade="all, delete-orphan")

@@ -22,7 +22,7 @@ async def get_user(
         username = f"@{username}"
     user_bd = await adapter.get_by_value(User, "username", username, session=session)
     if not user_bd:
-        raise HTTPException("User not found", 404)
+        raise HTTPException(404, "User not found")
     user_bd = user_bd[0]
     response = UserResponse.model_validate(user_bd, from_attributes=True)
     sub = await adapter.get_by_values(

@@ -21,8 +21,8 @@ async def add_comment(
     video_id: UUID,
     parent_id: UUID | None = None,
 ):
-    if len(content) < 2:
-        raise HTTPException("Too short")
+    if len(content.content) < 2:
+        raise HTTPException(400, "Too short")
     video = await adapter.get_by_id(Video, video_id, session=session)
     if not video:
         raise HTTPException(404, "Video not found")
@@ -45,7 +45,7 @@ async def add_comment(
         "video_id": video_id,
         "parent_id": parent_id,
         "parent_username": parent_username,
-        "content": content,
+        "content": content.content,
     }
     await adapter.update_by_id(Video, video_id, {"comments": video.comments + 1}, session=session)
     new_comm = await adapter.insert(Comment, new_comment, session=session)

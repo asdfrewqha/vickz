@@ -39,7 +39,7 @@ async def upd_profile(
         updated_data["description"] = update.description
 
     if not updated_data:
-        raise HTTPException("No fields provided")
+        raise HTTPException(400, "No fields provided")
 
     await adapter.update_by_id(User, uid, updated_data, session=session)
     return okresponse(message="Profile updated successfully")

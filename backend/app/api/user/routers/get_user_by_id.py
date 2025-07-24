@@ -21,7 +21,7 @@ async def get_user(
 ):
     user_bd = await adapter.get_by_id(User, id, session=session)
     if not user_bd:
-        raise HTTPException("User not found", 404)
+        raise HTTPException(404, "User not found")
     response = UserResponse.model_validate(user_bd, from_attributes=True)
     sub = await adapter.get_by_values(
         Subscription, {"subscriber_id": user.id, "subscribed_to_id": user_bd.id}, session=session

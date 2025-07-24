@@ -181,4 +181,3 @@ class Video(TimestampsMixin, Base):
     author = relationship("User", back_populates="videos")
     comment_list = relationship("Comment", back_populates="video", cascade="all, delete-orphan")
     likes_list = relationship("Like", backref="video", cascade="all, delete-orphan")
-    views = relationship("View", backref="video", cascade="all, delete-orphan")

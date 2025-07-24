@@ -1,6 +1,5 @@
 from random import choice
 from typing import Annotated
-from uuid import UUID
 
 from app.api.video.schemas import VideoResponse
 from app.core.logging import get_logger
@@ -19,9 +18,8 @@ Bear = HTTPBearer(auto_error=False)
 logger = get_logger()
 
 
-@router.get("/get-video/{uuid}", response_model=VideoResponse)
-async def get_video(
-    uuid: UUID,
+@router.get("/get-video-subcribed", response_model=VideoResponse)
+async def get_video_subscribed(
     user: Annotated[User, Depends(check_user_token)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):

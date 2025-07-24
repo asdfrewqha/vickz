@@ -81,7 +81,7 @@ class Comment(IDMixin, CreatedAtMixin, Base):
 
     parent: Mapped[Optional["Comment"]] = relationship(
         "Comment",
-        remote_side=[id],
+        remote_side=lambda: [Comment.id],
         backref="replies",
     )
 

@@ -4,19 +4,17 @@ from typing import Annotated
 from urllib.parse import urlparse
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
-from fastapi.exceptions import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.settings import settings
+from app.database.adapter import adapter
+from app.database.models import User, Video
+from app.database.session import get_async_session
 from app.dependencies.checks import check_user_token
 from app.dependencies.responses import emptyresponse
 from app.dependencies.s3_buckets import get_s3_b2
-from app.database.adapter import adapter
-from app.database.session import get_async_session
-from app.database.models import User, Video
 from app.utils.s3_adapter import S3HttpxSigV4Adapter
-
+from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 logging.basicConfig(level=logging.INFO)

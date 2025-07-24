@@ -1,16 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
+from app.database.adapter import adapter
+from app.database.models import Comment, User
+from app.database.session import get_async_session
+from app.dependencies.checks import check_user_token
+from app.dependencies.responses import okresponse
 from fastapi import APIRouter, Body, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.dependencies.checks import check_user_token
-from app.dependencies.responses import okresponse
-from app.database.adapter import adapter
-from app.database.models import User, Comment
-from app.database.session import get_async_session
-
 
 router = APIRouter()
 

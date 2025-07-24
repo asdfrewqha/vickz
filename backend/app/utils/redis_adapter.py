@@ -2,16 +2,17 @@ import json
 from typing import Any, Optional
 
 import redis.asyncio as redis
-from app.core.settings import settings
-
 from app.core.logging import get_logger
+from app.core.settings import settings
 
 logger = get_logger()
 
 
 class AsyncRedisAdapter:
     def __init__(self, decode_responses: bool = True):
-        self.redis = redis.Redis.from_url(settings.redis_settings.redis_url, decode_responses=decode_responses)
+        self.redis = redis.Redis.from_url(
+            settings.redis_settings.redis_url, decode_responses=decode_responses
+        )
 
     async def set(self, key: str, value: Any, expire: Optional[int] = None) -> bool:
         try:

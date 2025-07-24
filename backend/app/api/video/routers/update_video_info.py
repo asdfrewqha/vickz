@@ -1,17 +1,15 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
-from fastapi.exceptions import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.api.video.schemas import UpdateVideoContent
-from app.dependencies.checks import check_user_token
-from app.dependencies.responses import okresponse
 from app.database.adapter import adapter
 from app.database.models import User, Video
 from app.database.session import get_async_session
-
+from app.dependencies.checks import check_user_token
+from app.dependencies.responses import okresponse
+from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 

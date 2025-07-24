@@ -1,16 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
+from app.database.adapter import adapter
+from app.database.models import Like, User, Video
+from app.database.session import get_async_session
+from app.dependencies.checks import check_user_token
+from app.dependencies.responses import okresponse
 from fastapi import APIRouter, Depends, Query
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.dependencies.checks import check_user_token
-from app.dependencies.responses import okresponse
-from app.database.adapter import adapter
-from app.database.models import User, Like, Video
-from app.database.session import get_async_session
-
 
 router = APIRouter()
 
@@ -26,7 +24,9 @@ async def like_video(
     if not video:
         raise HTTPException(404, "Video not found")
 
-    existing_like = await adapter.get_by_values(Like, {"user_id": user.id, "video_id": uuid}, session=session)
+    existing_like = await adapter.get_by_values(
+        Like, {"user_id": user.id, "video_id": uuid}, session=session
+    )
 
     if existing_like:
         prev_like = existing_like[0]
@@ -39,20 +39,21 @@ async def like_video(
 
         if prev_like.like == like:
             await adapter.update_by_id(
-                Video,
-                uuid,
-                {"likes": video.likes, "dislikes": video.dislikes},
-                session=session
+                Video, uuid, {"likes": video.likes, "dislikes": video.dislikes}, session=session
             )
             return okresponse(message=f"{'liked' if like else 'disliked'}")
 
-    await adapter.insert(Like, {"user_id": user.id, "video_id": uuid, "like": like}, session=session)
+    await adapter.insert(
+        Like, {"user_id": user.id, "video_id": uuid, "like": like}, session=session
+    )
 
     if like:
         video.likes += 1
     else:
         video.dislikes += 1
 
-    await adapter.update_by_id(Video, uuid, {"likes": video.likes, "dislikes": video.dislikes}, session=session)
+    await adapter.update_by_id(
+        Video, uuid, {"likes": video.likes, "dislikes": video.dislikes}, session=session
+    )
 
     return okresponse(message=f"{'liked' if like else 'disliked'}")

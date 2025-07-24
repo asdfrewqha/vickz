@@ -1,6 +1,7 @@
+from typing import Annotated, Dict, Literal
+
 from fastapi import Cookie
 from fastapi.exceptions import HTTPException
-from typing import Annotated, Dict, Literal
 
 
 def get_tokens_cookies(

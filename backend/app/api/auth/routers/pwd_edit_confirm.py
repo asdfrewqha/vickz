@@ -1,24 +1,26 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
-from fastapi.exceptions import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from itsdangerous import BadSignature
-from itsdangerous.url_safe import URLSafeTimedSerializer
-
 from app.api.auth.schemas import EditPwdRequest
 from app.api.auth.utils import get_password_hash, verify_password
-from app.dependencies.responses import okresponse
 from app.database.adapter import adapter
 from app.database.models import User
 from app.database.session import get_async_session
-
+from app.dependencies.responses import okresponse
+from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
+from itsdangerous import BadSignature
+from itsdangerous.url_safe import URLSafeTimedSerializer
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
 
 @router.put("/change-password")
-async def edit_pwd_confirm(code: str, password: EditPwdRequest, session: Annotated[AsyncSession, Depends(get_async_session)]):
+async def edit_pwd_confirm(
+    code: str,
+    password: EditPwdRequest,
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+):
     serializer = URLSafeTimedSerializer()
     try:
         user_id = serializer.loads(code, max_age=600)

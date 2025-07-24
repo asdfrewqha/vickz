@@ -1,23 +1,22 @@
 import os
 import tempfile
 from typing import Annotated, Optional
-from uuid_v7.base import uuid7
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
-from fastapi.concurrency import run_in_threadpool
-from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.api.video.schemas import VideoCreateResponse
+from app.api.video.tasks import process_video_task
+from app.core.logging import get_logger
+from app.core.settings import settings
+from app.database.adapter import adapter
+from app.database.models import User, Video
+from app.database.session import get_async_session
 from app.dependencies.checks import check_user_token
 from app.dependencies.responses import badresponse
 from app.dependencies.s3_buckets import get_s3_b2
-from app.database.models import User, Video
-from app.database.adapter import adapter
-from app.database.session import get_async_session
-from app.api.video.schemas import VideoCreateResponse
-from app.core.logging import get_logger
 from app.utils.s3_adapter import S3HttpxSigV4Adapter
-from app.api.video.tasks import process_video_task
-from app.core.settings import settings
+from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi.concurrency import run_in_threadpool
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid_v7.base import uuid7
 
 router = APIRouter()
 logger = get_logger()
@@ -64,12 +63,11 @@ async def upload_video(
                 "url": public_url,
                 "description": description,
             },
-            session=session
+            session=session,
         )
 
         return VideoCreateResponse(
-            url=f"{settings.backend_url}/stream-video/{uuid}",
-            uuid=str(uuid)
+            url=f"{settings.backend_url}/stream-video/{uuid}", uuid=str(uuid)
         )
 
     except Exception:

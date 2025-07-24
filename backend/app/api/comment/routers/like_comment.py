@@ -1,15 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
-from fastapi.exceptions import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.dependencies.responses import okresponse
-from app.dependencies.checks import check_user_token
 from app.database.adapter import adapter
 from app.database.models import Comment, CommentLike, User
 from app.database.session import get_async_session
+from app.dependencies.checks import check_user_token
+from app.dependencies.responses import okresponse
+from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -43,11 +42,13 @@ async def like_comment(
                 Comment,
                 comment_id,
                 {"likes": comment.likes, "dislikes": comment.dislikes},
-                session=session
+                session=session,
             )
             return okresponse(message=f"{'liked' if like else 'disliked'}")
 
-    await adapter.insert(CommentLike, {"user_id": user.id, "comment_id": comment_id, "like": like}, session=session)
+    await adapter.insert(
+        CommentLike, {"user_id": user.id, "comment_id": comment_id, "like": like}, session=session
+    )
 
     if like:
         comment.likes += 1
@@ -55,10 +56,7 @@ async def like_comment(
         comment.dislikes += 1
 
     await adapter.update_by_id(
-        Comment,
-        comment_id,
-        {"likes": comment.likes, "dislikes": comment.dislikes},
-        session=session
+        Comment, comment_id, {"likes": comment.likes, "dislikes": comment.dislikes}, session=session
     )
 
     return okresponse(message=f"{'liked' if like else 'disliked'}")

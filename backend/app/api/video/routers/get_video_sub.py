@@ -1,18 +1,17 @@
-from uuid import UUID
-from typing import Annotated
 from random import choice
+from typing import Annotated
+from uuid import UUID
 
+from app.api.video.schemas import VideoResponse
+from app.core.logging import get_logger
+from app.core.settings import settings
+from app.database.adapter import adapter
+from app.database.models import Like, Subscription, User, Video
+from app.database.session import get_async_session
+from app.dependencies.checks import check_user_token
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.settings import settings
-from app.core.logging import get_logger
-from app.dependencies.checks import check_user_token
-from app.database.adapter import adapter
-from app.database.models import Video, User, Like, Subscription
-from app.database.session import get_async_session
-from app.api.video.schemas import VideoResponse
 
 router = APIRouter()
 Bear = HTTPBearer(auto_error=False)
@@ -26,7 +25,9 @@ async def get_video(
     user: Annotated[User, Depends(check_user_token)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
-    subscriptions = await adapter.get_by_value(Subscription, "subscriber_id", user.id, session=session)
+    subscriptions = await adapter.get_by_value(
+        Subscription, "subscriber_id", user.id, session=session
+    )
     sub_list = [sub.subscribed_to_id for sub in subscriptions]
     video_list = []
     for sub in sub_list:

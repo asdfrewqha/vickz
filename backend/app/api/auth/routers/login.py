@@ -1,18 +1,16 @@
-from typing import Annotated
 import re
+from typing import Annotated
 
-from fastapi import APIRouter, status, Depends
+from app.api.auth.schemas import UserLogin
+from app.api.auth.utils import verify_password
+from app.database.adapter import adapter
+from app.database.models import User
+from app.database.session import get_async_session
+from app.utils.token_manager import TokenManager
+from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.api.auth.schemas import UserLogin
-from app.database.adapter import adapter
-from app.database.models import User
-from app.api.auth.utils import verify_password
-from app.utils.token_manager import TokenManager
-from app.database.session import get_async_session
-
 
 router = APIRouter()
 
@@ -35,7 +33,9 @@ async def token(
     if is_valid_email(user.identifier):
         bd_user = await adapter.get_by_value(User, "email", user.identifier, session=session)
     elif is_valid_username(user.identifier):
-        bd_user = await adapter.get_by_value(User, "username", f"@{user.identifier}", session=session)
+        bd_user = await adapter.get_by_value(
+            User, "username", f"@{user.identifier}", session=session
+        )
     else:
         raise HTTPException(400, "Invalid identifier")
 

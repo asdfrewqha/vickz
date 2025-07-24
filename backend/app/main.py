@@ -1,15 +1,14 @@
 from contextlib import asynccontextmanager
 
+from app.core.log_middleware import LoggingMiddleware
+from app.core.logging import setup_logging
+from app.core.routers_loader import include_all_routers
+from app.core.settings import settings
+from app.database.adapter import adapter
+from app.utils.s3_adapter import S3HttpxSigV4Adapter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-
-from app.core.routers_loader import include_all_routers
-from app.database.adapter import adapter
-from app.core.logging import setup_logging
-from app.core.log_middleware import LoggingMiddleware
-from app.utils.s3_adapter import S3HttpxSigV4Adapter
-from app.core.settings import settings
 
 
 @asynccontextmanager

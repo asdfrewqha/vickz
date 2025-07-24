@@ -1,8 +1,9 @@
 from uuid import UUID as uuid
 from uuid import uuid4
-from uuid_v7.base import uuid7
+
 from sqlalchemy import UUID
 from sqlalchemy.orm import Mapped, mapped_column
+from uuid_v7.base import uuid7
 
 
 class IDMixin:

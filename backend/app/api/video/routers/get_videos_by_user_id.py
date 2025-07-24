@@ -1,15 +1,13 @@
+from typing import Annotated, List
 from uuid import UUID
-from typing import List, Annotated
 
+from app.database.adapter import adapter
+from app.database.models import User, Video
+from app.database.session import get_async_session
+from app.dependencies.checks import check_user_token
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.dependencies.checks import check_user_token
-from app.database.adapter import adapter
-from app.database.models import Video, User
-from app.database.session import get_async_session
-
 
 router = APIRouter()
 

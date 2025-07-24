@@ -2,18 +2,16 @@ import mimetypes
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
-from fastapi.responses import StreamingResponse
-from fastapi.exceptions import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 import requests
-
-from app.dependencies.checks import check_user_token
-from app.dependencies.responses import badresponse
 from app.database.adapter import adapter
 from app.database.models import User, Video, View
 from app.database.session import get_async_session
-
+from app.dependencies.checks import check_user_token
+from app.dependencies.responses import badresponse
+from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
+from fastapi.responses import StreamingResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -22,7 +20,7 @@ router = APIRouter()
 async def stream_by_uuid(
     uuid: UUID,
     user: Annotated[User, Depends(check_user_token)],
-    session: Annotated[AsyncSession, Depends(get_async_session)]
+    session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
     video = await adapter.get_by_id(Video, uuid, session=session)
     if not video:
@@ -37,7 +35,9 @@ async def stream_by_uuid(
     if r.status_code not in (200, 206):
         return badresponse("Media not accessible", r.status_code)
 
-    view = await adapter.get_by_values(View, {"user_id": user.id, "video_id": uuid}, session=session)
+    view = await adapter.get_by_values(
+        View, {"user_id": user.id, "video_id": uuid}, session=session
+    )
     if not view:
         await adapter.insert(View, {"user_id": user.id, "video_id": uuid}, session=session)
         views = video.views + 1

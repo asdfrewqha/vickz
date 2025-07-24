@@ -1,19 +1,18 @@
-from typing import Annotated
 import secrets
 import string
+from typing import Annotated
 
-from fastapi import APIRouter, status, Depends
-from fastapi.exceptions import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.api.auth.tasks import send_confirmation_email
-from app.dependencies.responses import okresponse, badresponse
 from app.api.auth.schemas import UserCreate
+from app.api.auth.tasks import send_confirmation_email
+from app.core.logging import get_logger
 from app.database.adapter import adapter
 from app.database.models import User
 from app.database.session import get_async_session
+from app.dependencies.responses import badresponse, okresponse
 from app.utils.redis_adapter import redis_adapter
-from app.core.logging import get_logger
+from fastapi import APIRouter, Depends, status
+from fastapi.exceptions import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = get_logger()
 

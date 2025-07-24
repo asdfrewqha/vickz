@@ -1,13 +1,26 @@
-from uuid import UUID
 from typing import Optional
+from uuid import UUID
+
 import inflect
-
-from sqlalchemy import Boolean, Integer, String, Uuid, ForeignKey, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, declarative_base, declared_attr, relationship
-
-from app.database.mixins.id_mixins import IDMixin, RandomIDMixin
-from app.database.mixins.timestamp_mixins import TimestampsMixin, CreatedAtMixin
 from app.core.settings import settings
+from app.database.mixins.id_mixins import IDMixin, RandomIDMixin
+from app.database.mixins.timestamp_mixins import CreatedAtMixin, TimestampsMixin
+from sqlalchemy import (
+    Boolean,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    Uuid,
+)
+from sqlalchemy.orm import (
+    Mapped,
+    declarative_base,
+    declared_attr,
+    mapped_column,
+    relationship,
+)
 
 p = inflect.engine()
 
@@ -86,7 +99,9 @@ class Subscription(CreatedAtMixin, Base):
     )
 
     subscriber = relationship("User", foreign_keys=[subscriber_id], back_populates="subscriptions")
-    subscribed_to = relationship("User", foreign_keys=[subscribed_to_id], back_populates="subscribers")
+    subscribed_to = relationship(
+        "User", foreign_keys=[subscribed_to_id], back_populates="subscribers"
+    )
 
     __table_args__ = (
         UniqueConstraint("subscriber_id", "subscribed_to_id", name="subscription_uc"),
@@ -121,7 +136,9 @@ class User(IDMixin, TimestampsMixin, Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(100), nullable=False)
-    avatar_url: Mapped[str] = mapped_column(String, nullable=False, default=settings.default_avatar_url)
+    avatar_url: Mapped[str] = mapped_column(
+        String, nullable=False, default=settings.default_avatar_url
+    )
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
     followers_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     subscriptions_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

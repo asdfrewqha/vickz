@@ -1,7 +1,8 @@
 import logging
 import sys
-from pathlib import Path
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
 from colorlog import ColoredFormatter
 
 LOG_DIR = Path("logs")
@@ -45,6 +46,7 @@ def setup_logging():
 
 def get_logger(name: str = None) -> logging.Logger:
     import inspect
+
     frame = inspect.stack()[1]
     module = inspect.getmodule(frame[0])
     return logging.getLogger(module.__name__ if module else "__main__")

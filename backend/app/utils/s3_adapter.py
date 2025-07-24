@@ -1,13 +1,12 @@
 import io
-import aiofiles
-from typing import Union, AsyncIterator, List, Tuple
+from typing import AsyncIterator, List, Tuple, Union
 from urllib.parse import quote
 
+import aiofiles
 import httpx
-from httpx_aws_auth import AwsCredentials, AwsSigV4Auth
-
-from app.core.settings import settings
 from app.core.logging import get_logger
+from app.core.settings import settings
+from httpx_aws_auth import AwsCredentials, AwsSigV4Auth
 
 logger = get_logger()
 
@@ -20,12 +19,11 @@ class S3HttpxSigV4Adapter:
         self.endpoint_url = settings.s3_settings.endpoint_url.rstrip("/")
         creds = AwsCredentials(
             access_key=settings.s3_settings.access_key,
-            secret_key=settings.s3_settings.secret_key.get_secret_value()
+            secret_key=settings.s3_settings.secret_key.get_secret_value(),
         )
         self.auth = AwsSigV4Auth(credentials=creds, region=region, service="s3")
         self.client = httpx.AsyncClient(
-            auth=self.auth,
-            timeout=httpx.Timeout(600.0, connect=10.0, read=600.0)
+            auth=self.auth, timeout=httpx.Timeout(600.0, connect=10.0, read=600.0)
         )
 
     async def _stream_file_parts(self, path: str) -> AsyncIterator[bytes]:
@@ -45,6 +43,7 @@ class S3HttpxSigV4Adapter:
             logger.error(f"Init multipart upload failed: {resp.status_code} {resp.text}")
             raise
         from xml.etree import ElementTree as ET
+
         root = ET.fromstring(resp.text)
         upload_id = root.find(".//{http://s3.amazonaws.com/doc/2006-03-01/}UploadId")
         if upload_id is None:
@@ -52,7 +51,9 @@ class S3HttpxSigV4Adapter:
             raise RuntimeError("Failed to get uploadId")
         return upload_id.text
 
-    async def _upload_part(self, object_name: str, upload_id: str, part_number: int, data: bytes) -> str:
+    async def _upload_part(
+        self, object_name: str, upload_id: str, part_number: int, data: bytes
+    ) -> str:
         url = f"{self.endpoint_url}/{self.bucket}/{object_name}?partNumber={part_number}&uploadId={upload_id}"
         resp = await self.client.put(url, content=data)
         resp.raise_for_status()
@@ -61,10 +62,12 @@ class S3HttpxSigV4Adapter:
             raise RuntimeError(f"Part {part_number} upload response missing ETag")
         return etag.strip('"')
 
-    async def _complete_multipart_upload(self, object_name: str, upload_id: str, parts: List[Tuple[int, str]]):
+    async def _complete_multipart_upload(
+        self, object_name: str, upload_id: str, parts: List[Tuple[int, str]]
+    ):
         url = f"{self.endpoint_url}/{self.bucket}/{object_name}?uploadId={upload_id}"
         parts_xml = "".join(
-            f"<Part><PartNumber>{num}</PartNumber><ETag>\"{etag}\"</ETag></Part>"
+            f'<Part><PartNumber>{num}</PartNumber><ETag>"{etag}"</ETag></Part>'
             for num, etag in parts
         )
         body = f"<CompleteMultipartUpload>{parts_xml}</CompleteMultipartUpload>"

@@ -1,11 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
-
-from app.dependencies.checks import check_user_token
 from app.api.user.schemas import UserProfileResponse
 from app.database.models import User
-
+from app.dependencies.checks import check_user_token
+from fastapi import APIRouter, Depends
 
 router = APIRouter()
 

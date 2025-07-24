@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
 
-from jose import JWTError, jwt
-from fastapi.exceptions import HTTPException
-
-from app.core.settings import settings
 from app.core.logging import get_logger
+from app.core.settings import settings
+from fastapi.exceptions import HTTPException
+from jose import JWTError, jwt
 
 logger = get_logger()
 
@@ -19,7 +18,9 @@ class TokenManager:
     def create_token(data: Dict[str, Any], access: bool = True) -> str:
         to_encode = data.copy()
         if access:
-            expire = datetime.now(timezone.utc) + timedelta(minutes=TokenManager.ACCESS_TOKEN_EXPIRE_MINUTES)
+            expire = datetime.now(timezone.utc) + timedelta(
+                minutes=TokenManager.ACCESS_TOKEN_EXPIRE_MINUTES
+            )
             to_encode.update({"exp": expire})
             to_encode.update({"type": "access"})
         else:
@@ -48,7 +49,9 @@ class TokenManager:
                 raise HTTPException(401, "Invalid token type")
             if access:
                 if payload.get("exp"):
-                    if datetime.fromtimestamp(payload.get("exp"), timezone.utc) < datetime.now(timezone.utc):
+                    if datetime.fromtimestamp(payload.get("exp"), timezone.utc) < datetime.now(
+                        timezone.utc
+                    ):
                         logger.info("Token has expired")
                         raise HTTPException(401, "Token has expired")
                 else:

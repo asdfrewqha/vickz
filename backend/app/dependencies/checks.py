@@ -1,16 +1,15 @@
 from typing import Annotated, Dict, Literal
 from uuid import UUID
 
-from app.utils.token_manager import TokenManager
-from app.utils.cookies import get_tokens_cookies
+from app.core.logging import get_logger
 from app.database.adapter import adapter
 from app.database.models import User
 from app.database.session import get_async_session
-
+from app.utils.cookies import get_tokens_cookies
+from app.utils.token_manager import TokenManager
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.exceptions import HTTPException
-from app.core.logging import get_logger
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = get_logger()
 

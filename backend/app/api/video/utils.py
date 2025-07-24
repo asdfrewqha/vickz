@@ -1,5 +1,6 @@
 import os
 import tempfile
+
 import cv2
 import numpy as np
 from moviepy.editor import VideoFileClip
@@ -52,7 +53,7 @@ def gen_blur_sync(input_path: str, target_resolution=(1080, 1920)) -> str:
 
         y = (background.shape[0] - output_height) // 2
         x = (background.shape[1] - output_width) // 2
-        background_cropped = background[y:y + output_height, x:x + output_width]
+        background_cropped = background[y : y + output_height, x : x + output_width]
 
         small = cv2.resize(background_cropped, (output_width // 4, output_height // 4))
         blurred = cv2.GaussianBlur(small, (25, 25), 0)
@@ -60,7 +61,9 @@ def gen_blur_sync(input_path: str, target_resolution=(1080, 1920)) -> str:
 
         x_offset = (output_width - resized.shape[1]) // 2
         y_offset = (output_height - resized.shape[0]) // 2
-        blurred[y_offset:y_offset + resized.shape[0], x_offset:x_offset + resized.shape[1]] = resized
+        blurred[y_offset : y_offset + resized.shape[0], x_offset : x_offset + resized.shape[1]] = (
+            resized
+        )
         return blurred
 
     try:
@@ -80,7 +83,7 @@ def gen_blur_sync(input_path: str, target_resolution=(1080, 1920)) -> str:
             bitrate=f"{bitrate}",
             threads=os.cpu_count() or 4,
             verbose=False,
-            logger=None
+            logger=None,
         )
         return output_path
 

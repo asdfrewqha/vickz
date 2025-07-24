@@ -1,19 +1,18 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, UploadFile
-from fastapi.exceptions import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.api.user.utils import process_image
+from app.core.logging import get_logger
 from app.core.settings import settings
-from app.dependencies.checks import check_user_token
-from app.dependencies.responses import okresponse, emptyresponse, badresponse
-from app.dependencies.s3_buckets import get_s3_b1
 from app.database.adapter import adapter
 from app.database.models import User
 from app.database.session import get_async_session
+from app.dependencies.checks import check_user_token
+from app.dependencies.responses import badresponse, emptyresponse, okresponse
+from app.dependencies.s3_buckets import get_s3_b1
 from app.utils.s3_adapter import S3HttpxSigV4Adapter
-from app.core.logging import get_logger
+from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi.exceptions import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = get_logger()
 
@@ -56,7 +55,9 @@ async def del_pfp(
 
     try:
         await s3.delete_file(filename)
-        await adapter.update_by_id(User, user.id, {"avatar_url": settings.default_avatar_url}, session=session)
+        await adapter.update_by_id(
+            User, user.id, {"avatar_url": settings.default_avatar_url}, session=session
+        )
     except Exception as e:
         logger.error(f"Error deleting profile picture: {e}")
         return badresponse(f"Error deleting old avatar: {e}", 500)

@@ -1,15 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
-from fastapi.exceptions import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.api.auth.schemas import UpdateProfile
-from app.dependencies.responses import okresponse
-from app.dependencies.checks import check_user_token
 from app.database.adapter import adapter
 from app.database.models import User
 from app.database.session import get_async_session
+from app.dependencies.checks import check_user_token
+from app.dependencies.responses import okresponse
+from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -28,7 +27,9 @@ async def upd_profile(
 
     if update.username:
         update.username = f"@{update.username}"
-        existing_username = await adapter.get_by_value(User, "username", update.username, session=session)
+        existing_username = await adapter.get_by_value(
+            User, "username", update.username, session=session
+        )
         if not existing_username:
             updated_data["username"] = update.username
         else:

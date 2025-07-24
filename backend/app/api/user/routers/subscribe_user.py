@@ -1,16 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
-from fastapi.exceptions import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.dependencies.checks import check_user_token
-from app.dependencies.responses import emptyresponse, okresponse
 from app.database.adapter import adapter
 from app.database.models import Subscription, User
 from app.database.session import get_async_session
-
+from app.dependencies.checks import check_user_token
+from app.dependencies.responses import emptyresponse, okresponse
+from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -41,7 +39,6 @@ async def subscribe(
             uuid,
             {"followers_count": max(user_db.followers_count - 1, 0)},
             session=session,
-
         )
         await adapter.update_by_id(
             User,
@@ -58,6 +55,10 @@ async def subscribe(
         },
         session=session,
     )
-    await adapter.update_by_id(User, uuid, {"followers_count": user_db.followers_count + 1}, session=session)
-    await adapter.update_by_id(User, user.id, {"subscriptions_count": user.subscriptions_count + 1}, session=session)
+    await adapter.update_by_id(
+        User, uuid, {"followers_count": user_db.followers_count + 1}, session=session
+    )
+    await adapter.update_by_id(
+        User, user.id, {"subscriptions_count": user.subscriptions_count + 1}, session=session
+    )
     return okresponse("Subscribed successfully")

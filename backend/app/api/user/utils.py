@@ -1,9 +1,8 @@
 import io
 
+from app.core.logging import get_logger
 from fastapi import UploadFile
 from PIL import Image
-
-from app.core.logging import get_logger
 
 logger = get_logger()
 

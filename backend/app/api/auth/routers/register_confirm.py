@@ -1,21 +1,22 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Response, status, Depends
-from fastapi.exceptions import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.api.auth.schemas import UserCreate, UserRegResponse
+from app.api.auth.utils import get_password_hash
 from app.database.adapter import adapter
 from app.database.models import User
 from app.database.session import get_async_session
 from app.utils.redis_adapter import redis_adapter
-from app.api.auth.utils import get_password_hash
 from app.utils.token_manager import TokenManager
+from fastapi import APIRouter, Depends, Response, status
+from fastapi.exceptions import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
 
-@router.post("/register-confirm/{code}", response_model=UserRegResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register-confirm/{code}", response_model=UserRegResponse, status_code=status.HTTP_201_CREATED
+)
 async def confirm_registration(
     response: Response,
     user: UserCreate,
@@ -37,6 +38,8 @@ async def confirm_registration(
     new_user_db = await adapter.insert(User, new_user, session=session)
     await redis_adapter.delete(f"email_verification_code:{user.email}")
     response.set_cookie("access_token", TokenManager.create_token({"sub": str(new_user_db.id)}))
-    response.set_cookie("refresh_token", TokenManager.create_token({"sub": str(new_user_db.id)}, False))
+    response.set_cookie(
+        "refresh_token", TokenManager.create_token({"sub": str(new_user_db.id)}, False)
+    )
 
     return UserRegResponse.model_validate(new_user_db, from_attributes=True)

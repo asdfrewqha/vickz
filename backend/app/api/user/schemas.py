@@ -1,8 +1,7 @@
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, ConfigDict
-
 from app.core.settings import settings
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class UserProfileResponse(BaseModel):

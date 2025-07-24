@@ -1,12 +1,11 @@
-from email.message import EmailMessage
 import smtplib
 import ssl
+from email.message import EmailMessage
 
-from starlette.templating import Jinja2Templates
-
-from app.core.settings import settings
 from app.core.celery_config import celery_app
 from app.core.logging import get_logger
+from app.core.settings import settings
+from starlette.templating import Jinja2Templates
 
 logger = get_logger()
 
@@ -23,7 +22,11 @@ def send_confirmation_email(to_email: str, code: str) -> None:
     message["Subject"] = f"Email confirmation <{code}>"
     context = ssl.create_default_context()
 
-    with smtplib.SMTP_SSL(host=settings.email_settings.email_host, port=settings.email_settings.email_port, context=context) as smtp:
+    with smtplib.SMTP_SSL(
+        host=settings.email_settings.email_host,
+        port=settings.email_settings.email_port,
+        context=context,
+    ) as smtp:
         smtp.login(
             user=settings.email_settings.email_username,
             password=settings.email_settings.email_password.get_secret_value(),
@@ -47,7 +50,11 @@ def send_confirmation_email_pwd(to_email: str, token: str) -> None:
     message["Subject"] = "Password editing confirmation"
     context = ssl.create_default_context()
 
-    with smtplib.SMTP_SSL(host=settings.email_settings.email_host, port=settings.email_settings.email_port, context=context) as smtp:
+    with smtplib.SMTP_SSL(
+        host=settings.email_settings.email_host,
+        port=settings.email_settings.email_port,
+        context=context,
+    ) as smtp:
         smtp.login(
             user=settings.email_settings.email_username,
             password=settings.email_settings.email_password.get_secret_value(),

@@ -37,11 +37,11 @@ async def stream_by_uuid(
     if r.status_code not in (200, 206):
         return badresponse("Media not accessible", r.status_code)
 
-    view = await adapter.get_by_values(View, {"user_id": user.id, "video_id": uuid})
+    view = await adapter.get_by_values(View, {"user_id": user.id, "video_id": uuid}, session=session)
     if not view:
-        await adapter.insert(View, {"user_id": user.id, "video_id": uuid})
+        await adapter.insert(View, {"user_id": user.id, "video_id": uuid}, session=session)
         views = video.views + 1
-        await adapter.update_by_id(Video, uuid, {"views": views})
+        await adapter.update_by_id(Video, uuid, {"views": views}, session=session)
 
     response_headers = {
         "Content-Length": r.headers.get("Content-Length", ""),

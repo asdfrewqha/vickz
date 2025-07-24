@@ -29,7 +29,7 @@ async def updt_pfp(
 ):
     if not file.content_type.startswith("image/"):
         raise HTTPException(415, "Unsupported file")
-    filename = f"{user.username}/avatar_{user.id}.png"
+    filename = f"avatar_{user.id}.png"
     if user.avatar_url != settings.default_avatar_url:
         try:
             await s3.delete_file(filename)
@@ -52,7 +52,7 @@ async def del_pfp(
     if user.avatar_url == settings.default_avatar_url:
         return badresponse("Not found", 404)
 
-    filename = f"{user.username}/avatar_{user.id}.png"
+    filename = f"avatar_{user.id}.png"
 
     try:
         await s3.delete_file(filename)

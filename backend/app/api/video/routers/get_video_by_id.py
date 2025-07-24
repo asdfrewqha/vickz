@@ -25,7 +25,7 @@ async def get_video(
     user: Annotated[User, Depends(check_user_token)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
-    video = await adapter.get_by_id(Video, uuid)
+    video = await adapter.get_by_id(Video, uuid, session=session)
 
     if not video:
         raise HTTPException(status_code=404, detail="Video not found")

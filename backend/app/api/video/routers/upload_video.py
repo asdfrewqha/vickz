@@ -38,7 +38,7 @@ async def upload_video(
         return badresponse("Unsupported file", 415)
 
     uuid = uuid7()
-    s3_path = f"{user.username}/{uuid}{ext}"
+    s3_path = f"{uuid}{ext}"
 
     temp_input_path: Optional[str] = None
     output_path: Optional[str] = None

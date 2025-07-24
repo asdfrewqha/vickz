@@ -1,6 +1,9 @@
+from typing import Annotated
+
 import dns.resolver
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from itsdangerous.url_safe import URLSafeTimedSerializer
 
 from app.api.auth.tasks import send_confirmation_email_pwd
@@ -9,6 +12,7 @@ from app.core.settings import settings
 from app.dependencies.responses import okresponse
 from app.database.adapter import adapter
 from app.database.models import User
+from app.database.session import get_async_session
 
 
 router = APIRouter()
@@ -16,8 +20,8 @@ logger = get_logger()
 
 
 @router.post("/change-password")
-async def change_pwd(email: str):
-    user = await adapter.get_by_value(User, "email", email)
+async def change_pwd(email: str, session: Annotated[AsyncSession, Depends(get_async_session)]):
+    user = await adapter.get_by_value(User, "email", email, session=session)
     if not user:
         raise HTTPException(404, "User not found")
     user = user[0]

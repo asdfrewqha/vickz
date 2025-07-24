@@ -24,7 +24,7 @@ async def edit_pwd_confirm(code: str, password: EditPwdRequest, session: Annotat
         user_id = serializer.loads(code, max_age=600)
     except BadSignature:
         raise HTTPException(403, "Code is invalid or has expired")
-    user = await adapter.get_by_id(User, user_id)
+    user = await adapter.get_by_id(User, user_id, session=session)
     if not user:
         raise HTTPException(404, "User with this token does not exist")
     if verify_password(password.password, user.password_hash):

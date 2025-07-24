@@ -45,8 +45,8 @@ async def delete_video(
     if video_result.author_id != user.id:
         raise HTTPException(403, "Forbidden")
 
-    filepath = f"{user.username}/{uuid}.{get_file_suffix(video_result.url)}"
+    filepath = f"{uuid}.{get_file_suffix(video_result.url)}"
     await s3.delete_file(filepath)
     logger.info(filepath)
-    await adapter.delete(Video, uuid)
+    await adapter.delete(Video, uuid, session=session)
     return emptyresponse()

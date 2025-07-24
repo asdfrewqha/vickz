@@ -1,17 +1,19 @@
-from typing import Any, List, AsyncGenerator
+from typing import Any, List, AsyncGenerator, Type, TypeVar, Literal
 
 from app.core.settings import settings
 from app.database.models import Base
 from sqlalchemy import func, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.future import select
-from sqlalchemy.sql import and_
+from sqlalchemy.sql import and_, or_
 from contextlib import asynccontextmanager
 from thefuzz import fuzz, process
 
 from app.core.logging import get_logger
 
 logger = get_logger()
+
+T = TypeVar("T")
 
 
 class AsyncDatabaseAdapter:
@@ -48,11 +50,46 @@ class AsyncDatabaseAdapter:
             result = await s.execute(select(model).where(getattr(model, parameter) == parameter_value))
             return result.scalars().all()
 
-    async def get_by_values(self, model, conditions: dict, session: AsyncSession | None = None) -> List[Any]:
+    async def get_by_values(
+        self,
+        model: Type[T],
+        and_conditions: dict = None,
+        or_conditions: dict = None,
+        mode: Literal["and", "or", "mixed"] = "and",
+        session: AsyncSession | None = None,
+    ) -> List[T]:
         async with self.get_or_create_session(session) as s:
             query = select(model)
-            for key, value in conditions.items():
-                query = query.where(getattr(model, key) == value)
+
+            and_conditions = and_conditions or {}
+            or_conditions = or_conditions or {}
+
+            def validate_keys(conditions):
+                for key in conditions:
+                    if not hasattr(model, key):
+                        raise ValueError(f"Invalid field: {key}")
+
+            validate_keys(and_conditions)
+            validate_keys(or_conditions)
+
+            and_clauses = [getattr(model, k) == v for k, v in and_conditions.items()]
+            or_clauses = [getattr(model, k) == v for k, v in or_conditions.items()]
+
+            if mode == "and":
+                if and_clauses:
+                    query = query.where(and_(*and_clauses))
+            elif mode == "or":
+                if or_clauses:
+                    query = query.where(or_(*or_clauses))
+            elif mode == "mixed":
+                combined = []
+                if and_clauses:
+                    combined.append(and_(*and_clauses))
+                if or_clauses:
+                    combined.append(or_(*or_clauses))
+                if combined:
+                    query = query.where(and_(*combined))
+
             result = await s.execute(query)
             return result.scalars().all()
 
@@ -94,6 +131,13 @@ class AsyncDatabaseAdapter:
                 await s.delete(record)
             await s.commit()
             return records
+
+    async def get_comment_replies(self, comment_id: Any, session: AsyncSession | None = None):
+        from app.database.models import Comment
+        async with self.get_or_create_session(session) as s:
+            stmt = select(Comment).where(Comment.parent_id == comment_id)
+            result = await s.execute(stmt)
+            return result.scalars().all()
 
     async def get_all_with_join(self, parent_model, child_model, parent_column_name: str, isouter: bool = True, session: AsyncSession | None = None) -> List[Any]:
         async with self.get_or_create_session(session) as s:

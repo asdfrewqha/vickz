@@ -17,8 +17,8 @@ class VideoResponse(BaseModel):
     author_id: UUID
     author_name: Optional[str] = None
     author_username: Optional[str] = None
-    is_liked_by_user: Optional[bool] = False
-    is_disliked_by_user: Optional[bool] = False
+    is_liked_by_user: Optional[bool] = None
+    is_disliked_by_user: Optional[bool] = None
     views: int = 0
     likes: int = 0
     dislikes: int = 0

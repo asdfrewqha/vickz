@@ -28,7 +28,7 @@ async def get_videos_by_user_id(
         raise HTTPException(404, "Videos not found")
     response = []
     for video in videos:
-        video = VideoResponse.model_validate(video)
+        video = VideoResponse.model_validate(video, from_attributes=True)
         video.serv_url = f"{settings.backend_url}/stream-video/{video.id}"
         video.author_name = author.name
         video.author_username = author.username
